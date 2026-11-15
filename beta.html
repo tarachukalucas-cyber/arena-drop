@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>ARENA DROP — BETA LAB</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#07121e;color:#eef8ff;font:14px system-ui;touch-action:none}
+canvas{display:block;position:fixed;inset:0}
+#top{position:fixed;z-index:3;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;gap:8px;pointer-events:none}
+.pill{background:#071522dc;border:1px solid #4b8094;border-radius:9px;padding:8px 11px}
+#side{position:fixed;z-index:4;right:12px;top:70px;width:min(260px,44vw);background:#071522e8;border:1px solid #47788e;border-radius:12px;padding:12px}
+#side h2{font-size:16px;color:#74e5ee;margin:0 0 8px}
+.item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0;border-top:1px solid #29495b}
+button{background:#147e96;color:#fff;border:0;border-radius:8px;padding:9px 11px;font-weight:800}
+button.active{outline:2px solid #9af1e8;background:#18536a}
+#note{position:fixed;z-index:3;bottom:12px;left:12px;max-width:52vw;background:#071522dc;padding:10px;border-radius:9px;color:#c7dce7;font-size:12px}
+#move{display:none;position:fixed;z-index:5;left:18px;bottom:22px;width:126px;height:126px;border:2px solid #9cecf277;border-radius:50%;background:#07152288;touch-action:none}
+#knob{position:absolute;left:36px;top:36px;width:50px;height:50px;border-radius:50%;background:#43c9dccc;border:2px solid #d8fbff}
+#look{display:none;position:fixed;z-index:2;right:0;bottom:0;width:52%;height:62%;touch-action:none}
+#exit{position:fixed;z-index:6;left:10px;top:58px}
+@media(max-width:700px){#side{top:auto;bottom:12px;right:10px;width:48vw;padding:9px}#side h2{font-size:14px}.item{font-size:12px;padding:6px 0}#note{left:10px;bottom:160px;max-width:43vw;font-size:11px}#move{display:block}#look{display:block}#exit{top:58px}}
+</style>
+</head>
+<body>
+<div id="top"><div class="pill"><b>ARENA DROP · BETA LAB</b></div><div class="pill" id="coords">Posição: 0, 0</div></div>
+<button id="exit" onclick="location.href='./index.html'">VOLTAR AO MENU</button>
+<aside id="side"><h2>ARSENAL — ÁREA DE TESTE</h2>
+<div class="item"><span>A5 Base <small>(modelo pendente)</small></span><button data-item="A5 Base">VER</button></div>
+<div class="item"><span>X50 Prism <small>(modelo pendente)</small></span><button data-item="X50 Prism">VER</button></div>
+<div class="item"><span>Armor Breaker <small>(katana · pendente)</small></span><button data-item="Armor Breaker">VER</button></div>
+<p id="selected" style="font-size:12px;color:#a9c7d5">Selecione um item para ver seu espaço de teste.</p>
+</aside>
+<div id="note">Teste de movimentação e colisões. WASD para andar · arraste o mouse para girar a câmera. Esta área não possui bots nem combate online.</div>
+<div id="move"><div id="knob"></div></div><div id="look"></div>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x91bfca);scene.fog=new THREE.Fog(0x91bfca,55,180);
+const camera=new THREE.PerspectiveCamera(68,innerWidth/innerHeight,.1,300);
+const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));renderer.shadowMap.enabled=true;document.body.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xe2f6ff,0x40533a,2));const sun=new THREE.DirectionalLight(0xffffff,2.1);sun.position.set(-35,55,22);sun.castShadow=true;scene.add(sun);
+const mat=(color)=>new THREE.MeshStandardMaterial({color,roughness:.88});
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(220,220),mat(0x587b59));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
+const obstacles=[];
+function block(x,z,w,h,d,color){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(color));m.position.set(x,h/2,z);m.castShadow=true;m.receiveShadow=true;scene.add(m);obstacles.push({x,z,w,d});return m}
+for(let i=0;i<12;i++){const x=(i%4)*15-23,z=Math.floor(i/4)*17-18;block(x,z,7,3.5,7,0xb5a17b);block(x,z-2,7,.35,7,0x46596a)}
+for(let i=0;i<24;i++){const x=Math.sin(i*9.7)*75,z=Math.cos(i*7.3)*75;const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.35,.48,2.4,7),mat(0x694a31));trunk.position.set(x,1.2,z);scene.add(trunk);const crown=new THREE.Mesh(new THREE.ConeGeometry(2.3,4.8,7),mat(0x2e6848));crown.position.set(x,4.5,z);crown.castShadow=true;scene.add(crown)}
+// Test stands mark where imported GLB equipment will be placed later.
+const standMat=mat(0x263f50);
+function stand(x,z,label){const base=new THREE.Mesh(new THREE.CylinderGeometry(1.1,1.1,.28,12),standMat);base.position.set(x,.14,z);scene.add(base);const post=new THREE.Mesh(new THREE.CylinderGeometry(.08,.08,1.2,8),mat(0x70ddeb));post.position.set(x,.82,z);scene.add(post);const tag=document.createElement('div');tag.textContent=label;tag.style.cssText='position:fixed;z-index:1;color:#fff;background:#061522bb;padding:4px 7px;border-radius:5px;font:12px system-ui;pointer-events:none';document.body.appendChild(tag);return {x,z,tag}}
+const stands=[stand(-7,8,'A5 BASE'),stand(0,8,'X50 PRISM'),stand(7,8,'ARMOR BREAKER')];
+// Temporary player proxy; replace with supplied character GLB after asset import.
+const player=new THREE.Group();const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.42,.85,4,8),mat(0x263f55));torso.position.y=1.05;player.add(torso);const head=new THREE.Mesh(new THREE.SphereGeometry(.27,12,10),mat(0xcda88c));head.position.y=1.78;player.add(head);scene.add(player);
+let px=0,pz=0,yaw=0,pitch=.12;const keys={};let dragging=false,lastX=0,lastY=0,move={x:0,y:0};
+addEventListener('keydown',e=>keys[e.code]=true);addEventListener('keyup',e=>keys[e.code]=false);
+renderer.domElement.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'){dragging=true;lastX=e.clientX;lastY=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)}});
+renderer.domElement.addEventListener('pointermove',e=>{if(!dragging)return;yaw-=(e.clientX-lastX)*.004;pitch=Math.max(-.65,Math.min(.6,pitch-(e.clientY-lastY)*.003));lastX=e.clientX;lastY=e.clientY});
+renderer.domElement.addEventListener('pointerup',()=>dragging=false);
+const stick=document.getElementById('move'),knob=document.getElementById('knob');let stickId=null;
+function stickMove(e){const r=stick.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2),lim=34,l=Math.hypot(dx,dy)||1,a=Math.min(1,lim/l);move.x=dx/l*a;move.y=dy/l*a;knob.style.transform='translate('+move.x*lim+'px,'+move.y*lim+'px)'}
+stick.addEventListener('pointerdown',e=>{stickId=e.pointerId;stick.setPointerCapture(e.pointerId);stickMove(e)});stick.addEventListener('pointermove',e=>{if(e.pointerId===stickId)stickMove(e)});function reset(){stickId=null;move={x:0,y:0};knob.style.transform='translate(0,0)'}stick.addEventListener('pointerup',reset);stick.addEventListener('pointercancel',reset);
+const look=document.getElementById('look');let lookId=null,lx=0,ly=0;look.addEventListener('pointerdown',e=>{lookId=e.pointerId;lx=e.clientX;ly=e.clientY;look.setPointerCapture(e.pointerId)});look.addEventListener('pointermove',e=>{if(e.pointerId!==lookId)return;yaw-=(e.clientX-lx)*.006;pitch=Math.max(-.65,Math.min(.6,pitch-(e.clientY-ly)*.004));lx=e.clientX;ly=e.clientY});look.addEventListener('pointerup',()=>lookId=null);look.addEventListener('pointercancel',()=>lookId=null);
+document.querySelectorAll('[data-item]').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('[data-item]').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById('selected').textContent=b.dataset.item+' selecionada. O arquivo 3D será carregado aqui quando estiver convertido e integrado.'}));
+function updateTags(){for(const s of stands){const v=new THREE.Vector3(s.x,1.8,s.z).project(camera);s.tag.style.left=((v.x*.5+.5)*innerWidth)+'px';s.tag.style.top=((-v.y*.5+.5)*innerHeight)+'px';s.tag.style.display=v.z<1?'block':'none'}}
+let last=performance.now();function loop(now){requestAnimationFrame(loop);const dt=Math.min((now-last)/1000,.04);last=now;let f=(keys.KeyW?1:0)-(keys.KeyS?1:0)-move.y,r=(keys.KeyD?1:0)-(keys.KeyA?1:0)+move.x;const speed=7,dx=(Math.sin(yaw)*f+Math.cos(yaw)*r)*speed*dt,dz=(-Math.cos(yaw)*f+Math.sin(yaw)*r)*speed*dt;const nx=px+dx,nz=pz+dz;const blocked=obstacles.some(o=>Math.abs(nx-o.x)<o.w/2+.55&&Math.abs(nz-o.z)<o.d/2+.55);if(!blocked){px=nx;pz=nz}player.position.set(px,0,pz);player.rotation.y=yaw;const dir=new THREE.Vector3(Math.sin(yaw)*Math.cos(pitch),Math.sin(pitch),-Math.cos(yaw)*Math.cos(pitch));camera.position.set(px,2.7,pz).addScaledVector(dir,-6);camera.lookAt(px,1.3,pz);document.getElementById('coords').textContent='Posição: '+px.toFixed(1)+', '+pz.toFixed(1);updateTags();renderer.render(scene,camera)}requestAnimationFrame(loop);
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+</script>
+</body>
+</html>
