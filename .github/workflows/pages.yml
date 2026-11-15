@@ -1,7 +1,7 @@
 name: Deploy ARENA DROP site
 on:
   push:
-    branches: [main]
+    branches: [beta]
   workflow_dispatch:
 permissions:
   contents: read
