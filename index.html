@@ -45,7 +45,7 @@ const getSave=(k,d)=>{try{return JSON.parse(localStorage.getItem('arena_'+k))??d
 const putSave=(k,v)=>localStorage.setItem('arena_'+k,JSON.stringify(v));
 let selectedCharacter=getSave('character','specter');
 let passData=getSave('pass',{xp:0,claimed:[]});
-let dailyData=getSave('daily',{last:'',streak:0,total:0});
+let dailyData=getSave('daily',{last:'',streak:0,total:0});\nlet wallet=getSave('wallet',0);
 function openPanel(id){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('open'));$(id).classList.add('open')}
 function closePanels(){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('open'))}
 function renderCharacters(){
@@ -54,16 +54,16 @@ function renderCharacters(){
 }
 function renderPass(){
  const level=Math.floor(passData.xp/100)+1,progress=passData.xp%100;
- $('passProgress').innerHTML='<b>Nível '+level+' · '+passData.xp+' XP</b><div class="progress"><span style="width:'+progress+'%"></span></div><small>'+progress+'/100 XP para o próximo nível. Ganhe 20 XP por minuto em uma partida.</small>';
+ $('passProgress').innerHTML='<b>Nível '+level+' · '+passData.xp+' XP · Créditos: '+wallet+'</b><div class="progress"><span style="width:'+progress+'%"></span></div><small>'+progress+'/100 XP para o próximo nível. Ganhe 20 XP por minuto em uma partida.</small>';
  $('passRewards').innerHTML=passLoot.map((r,i)=>'<div class="reward"><span><b>Nível '+(i+1)+'</b> — '+r+'</span><button data-pass="'+i+'" '+(passData.xp<(i+1)*100||passData.claimed.includes(i)?'disabled':'')+'>'+(passData.claimed.includes(i)?'RESGATADO':passData.xp>=(i+1)*100?'RESGATAR':'BLOQUEADO')+'</button></div>').join('');
- document.querySelectorAll('[data-pass]').forEach(b=>b.onclick=()=>{let i=Number(b.dataset.pass);if(passData.xp<(i+1)*100||passData.claimed.includes(i))return;passData.claimed.push(i);putSave('pass',passData);renderPass();});
+ document.querySelectorAll('[data-pass]').forEach(b=>b.onclick=()=>{let i=Number(b.dataset.pass);if(passData.xp<(i+1)*100||passData.claimed.includes(i))return;passData.claimed.push(i);if([0,2,4].includes(i))wallet+=i===0?100:i===2?150:200;putSave('wallet',wallet);putSave('pass',passData);renderPass();});
 }
 function dateKey(){let d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function renderDaily(){
  const today=dateKey(),claimed=dailyData.last===today;
  $('dailyRewards').innerHTML=dailyLoot.map((v,i)=>'<article class="featureCard '+(i<dailyData.streak?'selected':'')+'"><b>Dia '+(i+1)+'</b><div class="characterArt">🎁</div><b>'+v+' créditos</b></article>').join('');
- $('dailyStatus').innerHTML='<p>Sequência atual: '+dailyData.streak+' dia(s) · Total de resgates: '+dailyData.total+'</p><button id="claimDaily" '+(claimed?'disabled':'')+'>'+(claimed?'RECOMPENSA DE HOJE RESGATADA':'RESGATAR RECOMPENSA DE HOJE')+'</button><p><small>As recompensas são demonstrativas e ficam salvas apenas neste navegador/dispositivo.</small></p>';
- $('claimDaily').onclick=()=>{if(dailyData.last===today)return;const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);const y=yesterday.getFullYear()+'-'+String(yesterday.getMonth()+1).padStart(2,'0')+'-'+String(yesterday.getDate()).padStart(2,'0');dailyData.streak=dailyData.last===y?(dailyData.streak%7)+1:1;dailyData.last=today;dailyData.total++;putSave('daily',dailyData);renderDaily();};
+ $('dailyStatus').innerHTML='<p>Sequência atual: '+dailyData.streak+' dia(s) · Total de resgates: '+dailyData.total+' · Saldo: '+wallet+' créditos</p><button id="claimDaily" '+(claimed?'disabled':'')+'>'+(claimed?'RECOMPENSA DE HOJE RESGATADA':'RESGATAR RECOMPENSA DE HOJE')+'</button><p><small>As recompensas são demonstrativas e ficam salvas apenas neste navegador/dispositivo.</small></p>';
+ $('claimDaily').onclick=()=>{if(dailyData.last===today)return;const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);const y=yesterday.getFullYear()+'-'+String(yesterday.getMonth()+1).padStart(2,'0')+'-'+String(yesterday.getDate()).padStart(2,'0');dailyData.streak=dailyData.last===y?(dailyData.streak%7)+1:1;dailyData.last=today;dailyData.total++;wallet+=dailyLoot[dailyData.streak-1];putSave('wallet',wallet);putSave('daily',dailyData);renderDaily();};
 }
 $('openChars').onclick=()=>{renderCharacters();openPanel('charsPanel')};
 $('openPass').onclick=()=>{renderPass();openPanel('passPanel')};
