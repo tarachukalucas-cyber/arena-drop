@@ -14,14 +14,59 @@
 .progress{height:12px;border-radius:20px;background:#1d3545;overflow:hidden;margin:10px 0}.progress span{display:block;height:100%;background:linear-gradient(90deg,#1bb9c7,#9af1e8)}
 .reward{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px;border-bottom:1px solid #29485b}
 .reward button{padding:8px 12px}button:disabled{cursor:not-allowed}
+
+/* Mobile adaptation */
+html,body{width:100%;height:100%;overscroll-behavior:none}
+body{touch-action:none;-webkit-user-select:none;user-select:none}
+canvas{position:fixed;inset:0;touch-action:none}
+button,input{font:inherit}
+@media(max-width:700px){
+ .card{width:94vw;max-height:94dvh;overflow:auto;padding:18px}
+ h1{font-size:clamp(34px,11vw,54px);letter-spacing:3px}
+ .line{gap:7px}.line button{flex:1;min-height:46px}
+ #featureNav button{min-width:0;min-height:46px;font-size:12px;padding:10px 7px}
+ .panel{padding:8px}.panelCard{width:100%;max-height:94dvh;padding:15px}
+ .panelHead h2{font-size:20px}.cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+ .featureCard{padding:10px}.characterArt{height:68px}
+ #hud .top{padding:7px;gap:5px;flex-wrap:wrap}
+ #hud .pill{padding:7px 9px;font-size:11px}
+ #help{display:none}
+ #feed{top:75px;right:8px;font-size:12px;max-width:45vw}
+ #mobileControls{display:block}
+}
+#mobileControls{display:none;position:fixed;inset:0;pointer-events:none;z-index:8}
+#moveStick{position:absolute;left:20px;bottom:24px;width:132px;height:132px;border-radius:50%;background:#07152288;border:2px solid #9cecf277;pointer-events:auto;touch-action:none}
+#stickKnob{position:absolute;width:54px;height:54px;left:37px;top:37px;border-radius:50%;background:#43c9dccc;border:2px solid #d8fbff;box-shadow:0 2px 16px #0008}
+#lookArea{position:absolute;right:0;top:18%;width:58%;height:57%;pointer-events:auto;touch-action:none}
+.mobileAction{position:absolute;right:18px;width:62px;height:62px;border-radius:50%;padding:0;background:#09283bd9;border:2px solid #70ddeb;color:white;font-size:11px;box-shadow:0 3px 12px #0008;pointer-events:auto;touch-action:none}
+#fireBtn{right:22px;bottom:42px;width:76px;height:76px;background:#a52c36e8;border-color:#ff9da5;font-size:13px}
+#jumpBtn{right:108px;bottom:48px}
+#pickupBtn{right:108px;bottom:126px}
+#sprintBtn{right:22px;bottom:136px}
+@media(orientation:landscape) and (max-height:500px){
+ #moveStick{width:112px;height:112px;bottom:12px;left:14px}
+ #stickKnob{left:29px;top:29px;width:50px;height:50px}
+ #fireBtn{bottom:18px;right:16px}
+ #jumpBtn{bottom:22px;right:104px}
+ #pickupBtn{bottom:92px;right:104px}
+ #sprintBtn{bottom:104px;right:16px}
+ #lookArea{top:10%;height:65%}
+}
 </style></head><body><div id="menu"><section class="card"><h1>ARENA DROP</h1><p>Battle Royale 3D multiplayer • somente jogadores humanos, sem bots</p><div class="line"><input id="nick" maxlength="16" value="Player" placeholder="Seu nome"></div><div class="line"><input id="server" value="wss://SEU-SERVIDOR.onrender.com" placeholder="URL WebSocket do servidor"><button id="connect">CONECTAR</button></div><div id="status">Conecte ao servidor multiplayer para começar.</div><div id="featureNav"><button id="openChars">PERSONAGENS</button><button id="openPass">PASSE DE TEMPORADA</button><button id="openDaily">LOGIN DIÁRIO</button></div><div class="line"><button id="join" disabled>ENTRAR NA PARTIDA</button><button id="disconnect" disabled>SAIR</button></div><hr style="border-color:#29465a"><b>Adicionar amigo online</b><div class="line"><input id="friend" placeholder="Nome do jogador"><button id="add" disabled>ADICIONAR</button></div><div id="friends">A lista de jogadores online aparecerá aqui.</div><p style="font-size:12px">O servidor multiplayer precisa estar publicado e configurado para jogar online.</p></section></div>
 <div class="panel" id="charsPanel"><section class="panelCard"><div class="panelHead"><h2>ESCOLHA SEU OPERADOR</h2><button class="closePanel">FECHAR</button></div><p>Personagens originais. A escolha é visual neste protótipo.</p><div class="cards" id="characterCards"></div></section></div>
 <div class="panel" id="passPanel"><section class="panelCard"><div class="panelHead"><h2>PASSE: OPERAÇÃO AURORA</h2><button class="closePanel">FECHAR</button></div><p>Ganhe XP jogando e desbloqueie recompensas gratuitas. Seu progresso fica salvo neste navegador.</p><div id="passProgress"></div><div id="passRewards"></div></section></div>
 <div class="panel" id="dailyPanel"><section class="panelCard"><div class="panelHead"><h2>RECOMPENSAS DIÁRIAS</h2><button class="closePanel">FECHAR</button></div><p>Entre uma vez por dia para receber sua recompensa.</p><div class="cards" id="dailyRewards"></div><div id="dailyStatus"></div></section></div>
-<div id="hud"><div class="top"><div class="pill" id="phase">Aguardando</div><div class="pill" id="count">Jogadores: 0</div><div class="pill" id="weapon">Arma: nenhuma</div></div><div class="cross">+</div><div id="feed"></div><div id="help">WASD mover · Mouse mirar · Clique atirar · E pegar caixa · Espaço pular · Shift correr</div></div>
+<div id="hud"><div class="top"><div class="pill" id="phase">Aguardando</div><div class="pill" id="count">Jogadores: 0</div><div class="pill" id="weapon">Arma: nenhuma</div></div><div class="cross">+</div><div id="mobileControls" aria-label="Controles móveis">
+ <div id="moveStick"><div id="stickKnob"></div></div>
+ <div id="lookArea" aria-label="Arraste para olhar"></div>
+ <button class="mobileAction" id="sprintBtn" type="button">CORRER</button>
+ <button class="mobileAction" id="pickupBtn" type="button">PEGAR</button>
+ <button class="mobileAction" id="jumpBtn" type="button">PULAR</button>
+ <button class="mobileAction" id="fireBtn" type="button">ATIRAR</button>
+ </div><div id="feed"></div><div id="help">WASD mover · Mouse mirar · Clique atirar · E pegar caixa · Espaço pular · Shift correr</div></div>
 <script type="module">
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
-const $=id=>document.getElementById(id);let ws=null,id=null,joined=false,players={},crates=[],ammo=0,gun='Nenhuma',phase='waiting',yaw=0,pitch=0,locked=false;const keys={};
+const $=id=>document.getElementById(id);let ws=null,id=null,joined=false,players={},crates=[],ammo=0,gun='Nenhuma',phase='waiting',yaw=0,pitch=0,locked=false;const keys={};let mobileMove={x:0,y:0},mobileSprint=false;
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x8bc4d1);scene.fog=new THREE.Fog(0x8bc4d1,90,260);const camera=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,500);const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.shadowMap.enabled=true;document.body.appendChild(renderer.domElement);
 scene.add(new THREE.HemisphereLight(0xd9f3ff,0x34513b,2));const sun=new THREE.DirectionalLight(0xffffff,2);sun.position.set(-40,80,30);sun.castShadow=true;scene.add(sun);const ground=new THREE.Mesh(new THREE.PlaneGeometry(250,250),new THREE.MeshStandardMaterial({color:0x557d5b}));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
 function cube(x,y,z,a,b,c,col){const m=new THREE.Mesh(new THREE.BoxGeometry(a,b,c),new THREE.MeshStandardMaterial({color:col}));m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;scene.add(m);return m}
@@ -74,6 +119,34 @@ body.material.color.setHex(roster.find(c=>c.id===selectedCharacter).color);rende
 let passMinute=0;
 const originalHello=connect;
 
+
+// Touch controls for phones and tablets
+const mobileUI=$('mobileControls'),stick=$('moveStick'),knob=$('stickKnob'),lookArea=$('lookArea');
+const isTouch=('ontouchstart' in window)||navigator.maxTouchPoints>0;
+if(isTouch) mobileUI.style.display='block';
+let stickPointer=null,lookPointer=null,lastLookX=0,lastLookY=0;
+function updateStick(e){
+ const r=stick.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+ let dx=e.clientX-cx,dy=e.clientY-cy,limit=r.width*.34,len=Math.hypot(dx,dy);
+ if(len>limit){dx=dx/len*limit;dy=dy/len*limit}
+ mobileMove.x=dx/limit;mobileMove.y=dy/limit;
+ knob.style.transform='translate('+dx+'px,'+dy+'px)';
+}
+stick.addEventListener('pointerdown',e=>{stickPointer=e.pointerId;stick.setPointerCapture(e.pointerId);updateStick(e)});
+stick.addEventListener('pointermove',e=>{if(e.pointerId===stickPointer)updateStick(e)});
+function resetStick(){stickPointer=null;mobileMove.x=0;mobileMove.y=0;knob.style.transform='translate(0,0)'}
+stick.addEventListener('pointerup',resetStick);stick.addEventListener('pointercancel',resetStick);
+lookArea.addEventListener('pointerdown',e=>{if(!joined)return;lookPointer=e.pointerId;lastLookX=e.clientX;lastLookY=e.clientY;lookArea.setPointerCapture(e.pointerId)});
+lookArea.addEventListener('pointermove',e=>{if(e.pointerId!==lookPointer)return;const dx=e.clientX-lastLookX,dy=e.clientY-lastLookY;lastLookX=e.clientX;lastLookY=e.clientY;yaw-=dx*.006;pitch=Math.max(-1.1,Math.min(1.1,pitch-dy*.006))});
+lookArea.addEventListener('pointerup',()=>lookPointer=null);lookArea.addEventListener('pointercancel',()=>lookPointer=null);
+$('fireBtn').addEventListener('pointerdown',e=>{e.preventDefault();if(joined)shoot()});
+$('jumpBtn').addEventListener('pointerdown',e=>{e.preventDefault();if(joined&&me.y<=2)me.vy=8});
+$('pickupBtn').addEventListener('pointerdown',e=>{e.preventDefault();if(joined)pickup()});
+$('sprintBtn').addEventListener('pointerdown',e=>{e.preventDefault();mobileSprint=true});
+$('sprintBtn').addEventListener('pointerup',()=>mobileSprint=false);
+$('sprintBtn').addEventListener('pointercancel',()=>mobileSprint=false);
+$('sprintBtn').addEventListener('pointerleave',()=>mobileSprint=false);
+
 function shoot(){if(ammo<=0)return;ammo--;$('weapon').textContent='Arma: '+gun+' • '+ammo+' munições';send('shoot',{dx:Math.sin(yaw),dz:-Math.cos(yaw)})}function pickup(){let c=crates.find(c=>Math.hypot(c.data.x-me.x,c.data.z-me.z)<4);if(c)send('pickup',{crateId:c.data.id})}
-let last=performance.now(),timer=0;function loop(t){requestAnimationFrame(loop);let dt=Math.min((t-last)/1000,.04);last=t;if(joined){passMinute+=dt;if(passMinute>=60){let earned=Math.floor(passMinute/60)*20;passMinute%=60;passData.xp+=earned;putSave('pass',passData)}let f=(keys.KeyW?1:0)-(keys.KeyS?1:0),s=(keys.KeyD?1:0)-(keys.KeyA?1:0),v=keys.ShiftLeft?9:6,dx=Math.sin(yaw)*f+Math.cos(yaw)*s,dz=-Math.cos(yaw)*f+Math.sin(yaw)*s,l=Math.hypot(dx,dz)||1;me.x+=dx/l*v*dt;me.z+=dz/l*v*dt;me.vy-=18*dt;me.y+=me.vy*dt;if(me.y<=2){me.y=2;me.vy=0}if(keys.Space&&me.y<=2)me.vy=8;if(phase==='plane'){me.x+=6*dt;plane.position.set(me.x,48,0);if(me.x>90)send('drop')}if(phase==='drop'&&me.y>2)me.y-=8*dt;if(me.y<=2&&phase==='drop'){me.y=2;send('landed')}body.position.set(me.x,me.y,me.z);let dir=new THREE.Vector3(Math.sin(yaw)*Math.cos(pitch),Math.sin(pitch),-Math.cos(yaw)*Math.cos(pitch));camera.position.set(me.x,me.y+2,me.z).addScaledVector(dir,-5);camera.lookAt(me.x+dir.x*8,me.y+1.5+dir.y*8,me.z+dir.z*8);timer+=dt;if(timer>.07){timer=0;send('move',{x:me.x,y:me.y,z:me.z,yaw})}}renderer.render(scene,camera)}requestAnimationFrame(loop);addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+let last=performance.now(),timer=0;function loop(t){requestAnimationFrame(loop);let dt=Math.min((t-last)/1000,.04);last=t;if(joined){passMinute+=dt;if(passMinute>=60){let earned=Math.floor(passMinute/60)*20;passMinute%=60;passData.xp+=earned;putSave('pass',passData)}let f=(keys.KeyW?1:0)-(keys.KeyS?1:0)-mobileMove.y,s=(keys.KeyD?1:0)-(keys.KeyA?1:0)+mobileMove.x,v=(keys.ShiftLeft||mobileSprint)?9:6,dx=Math.sin(yaw)*f+Math.cos(yaw)*s,dz=-Math.cos(yaw)*f+Math.sin(yaw)*s,l=Math.hypot(dx,dz)||1;me.x+=dx/l*v*dt;me.z+=dz/l*v*dt;me.vy-=18*dt;me.y+=me.vy*dt;if(me.y<=2){me.y=2;me.vy=0}if(keys.Space&&me.y<=2)me.vy=8;if(phase==='plane'){me.x+=6*dt;plane.position.set(me.x,48,0);if(me.x>90)send('drop')}if(phase==='drop'&&me.y>2)me.y-=8*dt;if(me.y<=2&&phase==='drop'){me.y=2;send('landed')}body.position.set(me.x,me.y,me.z);let dir=new THREE.Vector3(Math.sin(yaw)*Math.cos(pitch),Math.sin(pitch),-Math.cos(yaw)*Math.cos(pitch));camera.position.set(me.x,me.y+2,me.z).addScaledVector(dir,-5);camera.lookAt(me.x+dir.x*8,me.y+1.5+dir.y*8,me.z+dir.z*8);timer+=dt;if(timer>.07){timer=0;send('move',{x:me.x,y:me.y,z:me.z,yaw})}}renderer.render(scene,camera)}requestAnimationFrame(loop);addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
 </script></body></html>
